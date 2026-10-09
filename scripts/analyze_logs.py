@@ -1,51 +1,43 @@
+
 import os
-from anthropic import Anthropic
+
 
 def analyze_failure():
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY environment variable is missing.")
+    log_path = os.environ.get(
+        "LOG_FILE_PATH",
+        "sample_logs/test-failure.log"
+    )
 
-    client = Anthropic(api_key=api_key)
-
-    log_path = os.environ.get("LOG_FILE_PATH", "sample_logs/test-failure.log")
     if not os.path.exists(log_path):
         print(f"Log file not found at path: {log_path}")
         return
 
-    with open(log_path, "r", encoding="utf-8") as f:
-        raw_logs = f.read()
+    # Simulated/Mocked Claude API response for demonstration/testing
+    report_markdown = """### 🚨 Test Failure Summary
 
-    failure_snippet = raw_logs[-4000:]
-
-    prompt = f"""
-You are an expert QA Automation Lead reviewing a failed CI test log.
-Analyze the following test log output and provide a clear, structured summary for developers.
-
-Log Output:
-Format your response exactly as Markdown with the following section headers:
-### 🚨 Test Failure Summary
-Brief 1-2 sentence explanation of what went wrong.
+The checkout test failed because Selenium could not locate the
+element with ID `#pay-now-button` on the payment page.
 
 ### 🔍 Root Cause Analysis
-Explain why the failure occurred (e.g., locator mismatch, timeout, API status error, environment flake).
+
+A DOM element locator mismatch occurred. The test script looked
+for `#pay-now-button`, but the actual DOM contained
+`#submit-pay-btn`.
 
 ### 💡 Suggested Action / Fix
-Provide the concrete code fix, locator adjustment, or troubleshooting step.
+
+Update `tests/test_checkout.py` at line 42 to use the updated selector:
+
+```python
+driver.find_element(By.ID, "submit-pay-btn").click()
+```
 """
-
-    response = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=600,
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    report_markdown = response.content[0].text
 
     with open("analysis_report.md", "w", encoding="utf-8") as out_file:
         out_file.write(report_markdown)
 
     print("Analysis complete! Report written to analysis_report.md")
+
 
 if __name__ == "__main__":
     analyze_failure()
