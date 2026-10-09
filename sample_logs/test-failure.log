@@ -1,0 +1,18 @@
+[INFO] Executing Test Suite: Regression Tests
+[INFO] Running test: test_login_with_valid_credentials ... PASSED
+[INFO] Running test: test_checkout_process ... FAILED
+
+=================================== FAILURES ===================================
+_________________________________ test_checkout_process _________________________________
+
+    def test_checkout_process(driver):
+>       driver.find_element(By.ID, "pay-now-button").click()
+E       selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#pay-now-button"}
+E         (Session info: chrome=124.0.6367.60)
+
+tests/test_checkout.py:42: NoSuchElementException
+--------------------------------- Captured log call ---------------------------------
+2026-10-09 10:15:22 ERROR [CheckoutPage] Submit payment button not visible after 10s timeout. Expected ID '#pay-now-button' but received DOM state containing '#submit-pay-btn'.
+=========================== short test summary info ============================
+FAILED tests/test_checkout.py::test_checkout_process - NoSuchElementException
+============================== 1 failed, 1 passed in 12.45s ==============================
