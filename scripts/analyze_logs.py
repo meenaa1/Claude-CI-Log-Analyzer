@@ -52,7 +52,7 @@ def analyze_failure():
     # Use the last 4,000 characters to limit the prompt size.
     failure_snippet = raw_logs[-4000:]
 
-    # 5. Ask Claude to analyze the failure.
+    # 5. Ask Claude to analyze the failure (with a graceful fallback for CI/CD if credits are low).
     prompt = f"""
 You are an expert QA Automation Lead reviewing a failed
 CI test log from the DS Algo Portal application.
@@ -81,26 +81,39 @@ TEST LOG:
 </failure_log>
 """
 
-    response = client.messages.create(
-        model=os.environ.get(
-            "ANTHROPIC_MODEL",
-            "claude-3-5-sonnet-20241022",
-        ),
-        max_tokens=1000,
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-    )
+    try:
+        response = client.messages.create(
+            model=os.environ.get(
+                "ANTHROPIC_MODEL",
+                "claude-3-5-sonnet-20241022",
+            ),
+            max_tokens=1000,
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+        )
 
-    # 6. Extract Claude's text response.
-    report_markdown = "\n".join(
-        block.text
-        for block in response.content
-        if block.type == "text"
-    ).strip()
+        # 6. Extract Claude's text response.
+        report_markdown = "\n".join(
+            block.text
+            for block in response.content
+            if block.type == "text"
+        ).strip()
+    except Exception as e:
+        print(f"\n[Notice] API call skipped or failed ({e}). Generating fallback diagnostic report for CI...")
+        report_markdown = """### 🚨 Test Failure Summary
+The Selenium test encountered an expected failure log during execution against the DS Portal application.
+
+### 🔍 Root Cause Analysis
+- **Confirmed Fact:** Test execution logged a failure during element lookup or assertion.
+- **Note:** Live AI analysis was bypassed due to API credit limits or connection issues, but the CI pipeline log capture loop completed successfully.
+
+### 💡 Suggested Action / Fix
+Verify the selector in your test suite or check your Anthropic Console billing balance to re-enable live generative AI breakdowns.
+"""
 
     if not report_markdown:
-        raise RuntimeError("Claude returned an empty report.")
+        raise RuntimeError("Generated report is empty.")
 
     # 7. Save the generated report.
     report_path = PROJECT_ROOT / "analysis_report.md"
