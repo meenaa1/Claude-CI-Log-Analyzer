@@ -35,11 +35,11 @@ def test_dsportal_home_page(driver):
     get_started_btn.click()
 
     # 3. Intentionally trigger a failure for the log analyzer demo
-    # non_existent_element = driver.find_element(
-    #     By.ID, "non-existent-login-button"
-    # )
+    non_existent_element = driver.find_element(
+        By.ID, "non-existent-login-button"
+    )
 
-    # assert non_existent_element.is_displayed()
+    assert non_existent_element.is_displayed()
 
     # # 3. Verify successful navigation to the main dashboard / home page
     # # Ensure the URL updates to the home route and navigation elements are visible
