@@ -1,4 +1,4 @@
-name: CI Log Analyzer Bot
+name: DS Portal CI Log Analyzer Bot
 
 on:
   workflow_dispatch:
@@ -8,11 +8,6 @@ on:
 jobs:
   analyze-test-failure:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
 
     steps:
       - name: Checkout Code
@@ -26,7 +21,13 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install anthropic
+          pip install pytest selenium webdriver-manager anthropic
+
+      - name: Run PyTest against DS Portal (Allow failure to capture logs)
+        continue-on-error: true
+        run: |
+          mkdir -p sample_logs
+          pytest tests/test_dsportal.py --tb=short > sample_logs/test-failure.log 2>&1
 
       - name: Run Claude Failure Analysis
         env:
