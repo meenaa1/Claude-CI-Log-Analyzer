@@ -1,6 +1,6 @@
 # 🤖 Claude CI Log Analyzer for DS Portal
 
-An AI-assisted CI/CD testing utility that runs Selenium UI tests against the DS Portal, captures test execution logs, and generates actionable failure analysis reports using Anthropic Claude or an offline fallback.
+An AI-assisted CI/CD testing utility that runs Selenium UI tests against the DS Algo Portal(https://dsportalapp.herokuapp.com/), captures test execution logs, and generates actionable failure analysis reports using Anthropic Claude or an offline fallback.
 
 The project demonstrates how AI-assisted diagnostics can help QA engineers and SDETs investigate automated test failures within a GitHub Actions workflow.
 
